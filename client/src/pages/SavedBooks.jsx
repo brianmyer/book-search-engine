@@ -10,8 +10,6 @@ import {
 import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
-import { useQuery, useMutation } from '@apollo/client';
-import { REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = () => {
   const [userData, setUserData] = useState({});
@@ -53,10 +51,14 @@ const SavedBooks = () => {
     }
 
     try {
-      const { data } = useMutation(REMOVE_BOOK);
+      const response = await deleteBook(bookId, token);
 
+      if (!response.ok) {
+        throw new Error('something went wrong!');
+      }
 
-      setUserData(data);
+      const updatedUser = await response.json();
+      setUserData(updatedUser);
       // upon success, remove book's id from localStorage
       removeBookId(bookId);
     } catch (err) {
